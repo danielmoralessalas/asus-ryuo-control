@@ -1,9 +1,10 @@
-# RYUO Control — Python + Qt6 for Linux
+# RYUO Control — Python with Qt6 or GTK4 for Linux
 
 [Español](README.md) | **English**
 
 An independent desktop application for controlling the ASUS ROG RYUO IV LCD.
-It uses PySide6 (Qt6) and this project's USB HID driver, reverse-engineered
+It offers PySide6 (Qt6) and PyGObject (GTK4) interfaces sharing this project's
+USB HID driver, reverse-engineered
 from ASUS InfoHub and the display's Android software.
 
 This initial version controls the LCD. It does not yet provide every InfoHub
@@ -19,14 +20,14 @@ administering the service on Linux.
 
 | Area | Changes in this version |
 | --- | --- |
-| Graphical interface | Python application with PySide6/Qt6, available in English and Spanish. English is the default; each user's language preference is saved. |
+| Graphical interface | Python interfaces with PySide6/Qt6 or PyGObject/GTK4, available in English and Spanish. English is the default; each user's language preference is saved. |
 | Sensor layout | Interactive view over an image of the AIO, with six positions, drag to swap, empty slots, and configurable colors. These are the LCD's supported slots, rather than freely positioned coordinates. |
 | Preview | Local background video playback with sensor overlays on a representation of the curved screen. This is a simulation, not a capture of the real LCD. |
 | Videos | Preset and playback mode selection; upload and apply custom MP4s in one operation, download files from the AIO, and delete custom videos while protecting presets. |
 | Brightness | Adjustment from 0 to 100% through ADB, with USB serial selection or detection. |
 | Sensors and hardware | CCD average or Tctl on AMD CPUs, package temperature on Intel CPUs, and AMD/NVIDIA GPU readings depending on available drivers and tools. |
 | Configuration and service | Persistent, validated settings in `/etc/ryuo-lcd.json`; start, stop, restart, boot enablement, and log controls, with polkit authentication. |
-| Installation | A single `install.sh` detects the distribution family and installs driver and application dependencies, including ADB. Covers Fedora/Nobara, Bazzite/Fedora Atomic, Arch, Ubuntu, and SUSE under the conditions below. |
+| Installation | A single `install.sh` detects the distribution family and installs driver and selected frontend dependencies (`--qt6` or `--gtk4`), including ADB. Covers Fedora/Nobara, Bazzite/Fedora Atomic, Arch, Ubuntu, and SUSE under the conditions below. |
 | Uninstallation and diagnostics | Uninstaller with a dry run and optional system configuration purge; sensor, HID backend, and USB detection diagnostics. |
 
 The driver continues to run as an independent service: closing the interface
@@ -39,7 +40,7 @@ and validation notes below.
 
 ## Features
 
-- Live CPU, AMD GPU, and memory dashboard with usage history.
+- Live CPU, AMD/NVIDIA GPU, and memory dashboard with usage history.
 - AMD CPU temperature: CCD average or Tctl; Intel: package via coretemp.
 - Selection of the five built-in videos; cycle, random, or single playback.
 - Custom MP4 uploads and retrieval of the LCD's video list through ADB.
@@ -57,8 +58,15 @@ and validation notes below.
 Run the unified installer from the project directory:
 
 ```bash
-sudo bash ./install.sh
+sudo bash ./install.sh --qt6   # Qt6: the default
+sudo bash ./install.sh --gtk4  # GTK4: alternative using the same configuration
 ```
+
+Run only the command for your chosen frontend. Omitting both options selects
+Qt6; `--qt6` and `--gtk4` are mutually exclusive. To switch frontends, rerun the
+installer with the other option. The **RYUO Control** launcher opens the selected
+frontend; LCD settings and service configuration are preserved. Shared or
+previously installed packages are not removed when switching.
 
 It detects the distribution using `ID` and `ID_LIKE` from `/etc/os-release`
 and selects the appropriate dependencies and package manager:
@@ -83,9 +91,9 @@ non-systemd derivatives are not covered.
 To inspect the plan without changing packages, files, or services:
 
 ```bash
-bash ./install.sh --dry-run
+bash ./install.sh --gtk4 --dry-run
 # Inspect the plan for another family:
-bash ./install.sh --dry-run --family=arch
+bash ./install.sh --gtk4 --dry-run --family=arch
 ```
 
 `--family` accepts `auto` (the default), `fedora`, `bazzite`, `arch`, `ubuntu`,
@@ -127,21 +135,24 @@ manually before running the script:
 | Ubuntu / Debian and derivatives | `adb` |
 | openSUSE / SUSE | `android-tools` |
 
-The installer also includes Python, HID, PySide6/Qt6, Qt Multimedia,
-translations, polkit/pkexec, and the required Wayland/X11 libraries. Fedora and
-Arch explicitly install native Qt Multimedia and Wayland modules; Ubuntu/SUSE
-install Qt wheels and their required system libraries. RYUO USB rules are
+The installer also includes Python, HID, polkit/pkexec, and dependencies for
+the chosen frontend. Qt6 uses PySide6, Qt Multimedia, translations, and
+Wayland/X11 libraries; Fedora/Arch use native packages and Ubuntu/SUSE use Qt
+wheels. GTK4 uses native PyGObject, Cairo, GTK4, and GStreamer packages and does
+not install PySide6. RYUO USB rules are
 installed and reloaded during the same process.
 
 Before copying the application and enabling the service, the installer checks
 ADB, pkexec, systemd, and udev executables, runs `adb version` without starting
-its server, checks HID/Qt Multimedia imports and Spanish translations, and
+its server, checks HID and selected frontend imports (including Spanish translations for Qt6), and
 reads sensors. If a dependency is missing or an executable fails, installation
 stops with an error rather than reporting success. These checks do not require
 ADB authorization for the AIO. Device authorization, if requested by the
 firmware, is handled separately.
 
 ### Fedora and Nobara
+
+With `--qt6`:
 
 These use `dnf` with `python3-hidapi`, `python3-pyside6`, `qt6-qtmultimedia`,
 `qt6-qtwayland`, `qt6-qttranslations`, `android-tools`, and `polkit`.
@@ -154,7 +165,7 @@ service. Language selection remains a per-user preference.
 If dependencies are missing from the booted deployment, they are staged using
 `rpm-ostree install --idempotent`; the installer then exits without copying the
 application or changing its services. Reboot manually and run
-`sudo bash ./install.sh` again. If all dependencies are already present,
+`sudo bash ./install.sh --gtk4` again (use the same frontend option as before). If all dependencies are already present,
 application installation proceeds directly.
 
 The application uses `/usr/local` and `/etc`; `/usr/local` must be writable,
@@ -165,6 +176,8 @@ future image updates; see the
 [Bazzite package layering documentation](https://docs.bazzite.gg/Installing_and_Managing_Software/rpm-ostree/).
 
 ### Arch and derivatives
+
+With `--qt6`:
 
 The installer installs `python-hidapi`, `pyside6`, `qt6-multimedia`,
 `qt6-wayland`, `qt6-translations`, `android-tools`, and `polkit`. Qt Multimedia
@@ -180,6 +193,8 @@ upgrade, or using the AUR. If databases are outdated, update normally with
 
 ### Ubuntu and SUSE
 
+With `--qt6`:
+
 APT or Zypper installs Python, ADB, polkit, and the necessary HID and desktop
 libraries. PySide6 and hidapi are installed from PyPI as binary wheels into
 the root-owned `/usr/local/share/ryuo-control/venv`. The installer does not use
@@ -191,18 +206,47 @@ wheels supply their Qt libraries and translations. Access to PyPI is required
 in addition to distribution repositories. The installer does not add PPAs,
 external OBS repositories, or packages from another distribution release.
 
+### GTK4 frontend
+
+The GTK4 version preserves Qt6's sidebar, dark theme with turquoise accents,
+sensor cards and history, and display/service pages. It includes English/Spanish,
+six draggable sensor slots, colors, brightness, video management, preview over
+the curved device image, and service actions through polkit. Both frontends
+share `/etc/ryuo-lcd.json`, the driver, protocol names, language preference,
+and video cache.
+
+Appearance is similar, although controls, dialogs, and fonts can differ by
+toolkit and desktop. Application text changes with the language selector;
+standard buttons in native GTK dialogs may follow the desktop language.
+Qt6 uses Qt Multimedia; GTK4 uses `Gtk.MediaFile` and GStreamer. Available
+codecs depend on the distribution; missing MP4 decoders produce a preview
+error. The installer does not add external codec repositories or convert files.
+It includes base/good plugins and libav where present in its package plan
+(Fedora/Arch/Ubuntu). SUSE may require enabling a compatible codec through
+the distribution's supported method.
+
+GTK4 requires version 4.6 or later and uses system Python bindings. On Ubuntu/SUSE, the private environment
+enables `--system-site-packages` to access native PyGObject/Cairo and installs
+only hidapi through pip. The Qt6-specific instructions in the preceding
+sections apply to `--qt6`.
+
+References: [PyGObject installation](https://pygobject.gnome.org/getting_started.html)
+and [GTK4 video](https://docs.gtk.org/gtk4/class.Video.html).
+
 ### Running from the workspace
 
 On Fedora/Arch with native dependencies:
 
 ```bash
-python3 ryuo-gui.py
+python3 ryuo-gui.py  # Qt6
+python3 ryuo-gtk.py  # GTK4, with its dependencies installed
 ```
 
 On Ubuntu/SUSE after installation:
 
 ```bash
-/usr/local/share/ryuo-control/venv/bin/python ryuo-gui.py
+/usr/local/share/ryuo-control/venv/bin/python ryuo-gui.py  # --qt6 installation
+/usr/local/share/ryuo-control/venv/bin/python ryuo-gtk.py  # --gtk4 installation
 ```
 
 Applying changes from the GUI requires the helper installed at
@@ -561,19 +605,34 @@ sudo /usr/local/bin/ryuo-lcd --once
 sudo systemctl start ryuo-lcd.service
 ```
 
-Tests require PySide6 and do not write to USB or change services:
+The full suite requires both frontends' dependencies and does not write to USB or change services:
 
 ```bash
 python3 -m unittest discover -s tests -v
 QT_QPA_PLATFORM=offscreen python3 ryuo-gui.py --smoke-test
 ```
 
-The smoke test closes the window automatically and saves a screenshot to
-`/tmp/ryuo-control-preview.png`.
+The Qt6 smoke test closes the window automatically and saves a screenshot to
+`/tmp/ryuo-control-preview.png`. To check GTK4 alone, from a graphical session:
+
+```bash
+python3 -m unittest discover -s tests -p test_gtk4.py -v
+python3 ryuo-gtk.py --smoke-test
+```
+
+The GTK4 smoke test does not query sensors or services and saves its own view
+to `/tmp/ryuo-control-gtk-preview.png`. GTK4 tests are skipped when no GTK display
+is available; skipped tests do not provide visual verification. Optionally,
+`RYUO_TEST_VIDEO=/path/test.mp4` enables local playback and projection testing
+without accessing the AIO. The new interface was checked on a virtual Broadway
+display, playing a locally generated video. Actual USB operations and native
+installation on each distribution still require field testing.
 
 Main files:
 
 - `ryuo-gui.py`: Qt6 interface and background sensor monitor.
+- `ryuo-gtk.py`: GTK4 interface, interactive editor, and media preview.
+- `ryuo_desktop.py`: shared detection, sensor, and cache utilities without GUI dependencies.
 - `ryuo-lcd.py`: HID protocol and sensor transmission.
 - `ryuo_hid.py`: USB detection and HID binding adapters.
 - `ryuo_config.py`: validation, defaults, and display format.
@@ -616,3 +675,6 @@ MIT
 ## Credits
 
 Reverse-engineered with the help of Claude (Anthropic).
+
+RYUO Control development and enhancements assisted by Codex (OpenAI),
+using GPT 6.1 Sol.

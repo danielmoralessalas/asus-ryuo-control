@@ -47,6 +47,42 @@ class InstallerTests(unittest.TestCase):
                 self.assertIn(f'Distribution family: {family}', result.stdout)
                 self.assertIn(manager, result.stdout)
 
+    def test_gtk4_installs_its_dependencies_without_qt_for_every_family(self):
+        for family in FAMILIES:
+            with self.subTest(family=family):
+                result = subprocess.run(['bash', 'install.sh', '--dry-run', '--gtk4', f'--family={family}'],
+                                        cwd=ROOT, capture_output=True, text=True, check=True)
+                self.assertIn('Desktop frontend: gtk4', result.stdout)
+                self.assertIn('gtk4' if family in ('fedora', 'arch', 'bazzite') else 'Gtk-4_0' if family == 'suse' else 'gtk-4.0', result.stdout)
+                self.assertNotIn('pyside6', result.stdout.lower())
+                self.assertNotIn('qt6-', result.stdout)
+                self.assertIn('adb' if family == 'ubuntu' else 'android-tools', result.stdout)
+                if family in ('ubuntu', 'suse'):
+                    self.assertIn('--system-site-packages', result.stdout)
+                    self.assertIn('hidapi', result.stdout)
+                if family == 'bazzite':
+                    self.assertNotIn('Would copy application', result.stdout)
+
+    def test_frontend_flags_are_mutually_exclusive(self):
+        for args in [('--qt6', '--gtk4'), ('--gtk4', '--qt6')]:
+            result = subprocess.run(['bash', 'install.sh', '--dry-run', *args], cwd=ROOT,
+                                    capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('Choose only one frontend', result.stderr)
+            self.assertNotIn('Would run:', result.stdout)
+
+    def test_staged_switch_to_gtk_preserves_settings_and_changes_launcher(self):
+        with tempfile.TemporaryDirectory() as directory:
+            stage = Path(directory)
+            settings = stage / 'etc/ryuo-lcd.json'
+            settings.parent.mkdir(parents=True)
+            settings.write_text('existing settings')
+            self.run_bash('source "$1"; ryuo_install_files "$2"; RYUO_UI=gtk4; ryuo_install_files "$2"', COMMON, stage)
+            self.assertIn('/usr/local/bin/ryuo-gtk.py', (stage / 'usr/local/bin/ryuo-control').read_text())
+            self.assertTrue((stage / 'usr/local/bin/ryuo-gtk.py').exists())
+            self.assertTrue((stage / 'usr/local/bin/ryuo_desktop.py').exists())
+            self.assertEqual(settings.read_text(), 'existing settings')
+
     def test_detects_distribution_and_ordered_ancestry(self):
         for distro, ancestry, expected in [
                 ('fedora', '', 'fedora'), ('nobara', 'fedora', 'fedora'),

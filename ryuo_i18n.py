@@ -1,6 +1,7 @@
 """English/Spanish UI catalog, independent of LCD protocol identifiers."""
 
 EN = {
+    'Seleccionar': 'Select', 'Cancelar': 'Cancel', 'Aceptar': 'OK', 'Sí': 'Yes', 'No': 'No',
     'AMD: promedio CCD · Intel: paquete': 'AMD: CCD average · Intel: package',
     'AMD: Tctl · Intel: paquete': 'AMD: Tctl · Intel: package',
     'Frecuencia GPU': 'GPU frequency', 'Potencia GPU': 'GPU power',

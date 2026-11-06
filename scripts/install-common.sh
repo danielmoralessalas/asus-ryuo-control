@@ -7,18 +7,26 @@ RYUO_DRY_RUN=0
 RYUO_FORCE_ATOMIC=0
 RYUO_REBOOT_REQUIRED=0
 RYUO_FAMILY=auto
+RYUO_UI=qt6
 
 ryuo_error() { echo "Error: $*" >&2; return 1; }
 
 ryuo_init() {
-    local option
+    local option ryuo_ui_option=''
     for option in "$@"; do
         case "$option" in
             --dry-run) RYUO_DRY_RUN=1 ;;
             --atomic) RYUO_FORCE_ATOMIC=1 ;;
             --family=*) RYUO_FAMILY=${option#--family=} ;;
+            --qt6|--gtk4)
+                if [[ -n ${ryuo_ui_option:-} && $ryuo_ui_option != "$option" ]]; then
+                    ryuo_error 'Choose only one frontend: --qt6 or --gtk4.'; return 1
+                fi
+                ryuo_ui_option=$option
+                RYUO_UI=${option#--} ;;
             --help|-h)
-                echo 'Usage: sudo bash ./install.sh [--dry-run] [--family=auto|fedora|bazzite|arch|ubuntu|suse]'
+                echo 'Usage: sudo bash ./install.sh [--qt6|--gtk4] [--dry-run] [--family=auto|fedora|bazzite|arch|ubuntu|suse]'
+                echo '--qt6 (default) or --gtk4: select the desktop frontend and its dependencies.'
                 echo '--dry-run: print the plan without changing packages, files or services.'
                 echo '--family: inspect/choose a family; real installs still verify host compatibility.'
                 echo 'Fedora only: --atomic selects the rpm-ostree workflow (Bazzite).'
@@ -64,7 +72,7 @@ ryuo_atomic_packages() {
         if (( RYUO_DRY_RUN )); then
             echo 'Would stage missing dependencies and stop before installing files/services.'
         else
-            echo 'Dependencies staged. Reboot, then rerun: sudo bash ./install.sh'
+            echo "Dependencies staged. Reboot, then rerun: sudo bash ./install.sh --$RYUO_UI"
             echo 'Application files and services have not been changed in this phase.'
         fi
     fi
@@ -78,19 +86,30 @@ ryuo_check_python() {
 ryuo_create_venv() {
     local method=${1:-venv}
     ryuo_check_python
-    ryuo_run "$RYUO_PYTHON" -m "$method" "$RYUO_VENV"
+    if [[ $RYUO_UI == gtk4 ]]; then
+        ryuo_run "$RYUO_PYTHON" -m "$method" --system-site-packages "$RYUO_VENV"
+    else
+        ryuo_run "$RYUO_PYTHON" -m "$method" "$RYUO_VENV"
+    fi
     RYUO_PYTHON="$RYUO_VENV/bin/python"
-    ryuo_run "$RYUO_PYTHON" -m pip install --only-binary=:all: 'PySide6>=6.6,<7' 'hidapi>=0.14,<1'
+    local wheels=('hidapi>=0.14,<1')
+    if [[ $RYUO_UI == qt6 ]]; then wheels=('PySide6>=6.6,<7' "${wheels[@]}"); fi
+    ryuo_run "$RYUO_PYTHON" -m pip install --only-binary=:all: "${wheels[@]}"
 }
 
 ryuo_check_runtime() {
     if (( RYUO_DRY_RUN )); then
-        echo 'Would verify ADB, pkexec, systemd, udev, HID, Qt Multimedia and Spanish translations.'
+        echo "Would verify ADB, pkexec, systemd, udev, HID and the $RYUO_UI frontend."
         return 0
     fi
     ryuo_check_commands
     ryuo_check_python
-    "$RYUO_PYTHON" -c 'import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); from ryuo_hid import load_backend; from PySide6.QtCore import qVersion, QLibraryInfo; from PySide6.QtWidgets import QApplication; from PySide6.QtMultimedia import QMediaPlayer, QVideoSink; load_backend(); assert tuple(map(int, qVersion().split(".")[:2])) >= (6, 6), "Qt 6.6 or newer is required"; assert (Path(QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)) / "qtbase_es.qm").is_file(), "Qt Spanish translations are missing"' "$RYUO_PROJECT_DIR"
+    "$RYUO_PYTHON" -c 'import sys; sys.path.insert(0, sys.argv[1]); from ryuo_hid import load_backend; load_backend()' "$RYUO_PROJECT_DIR"
+    if [[ $RYUO_UI == qt6 ]]; then
+        "$RYUO_PYTHON" -c 'from pathlib import Path; from PySide6.QtCore import qVersion, QLibraryInfo; from PySide6.QtWidgets import QApplication; from PySide6.QtMultimedia import QMediaPlayer, QVideoSink; assert tuple(map(int, qVersion().split(".")[:2])) >= (6, 6), "Qt 6.6 or newer is required"; assert (Path(QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)) / "qtbase_es.qm").is_file(), "Qt Spanish translations are missing"'
+    else
+        "$RYUO_PYTHON" -c 'import gi; gi.require_version("Gtk", "4.0"); gi.require_version("Graphene", "1.0"); from gi.repository import Gtk, Graphene; import cairo; gi.require_foreign("cairo"); assert (Gtk.get_major_version(), Gtk.get_minor_version()) >= (4, 6), "GTK 4.6 or newer is required"; assert Gtk.MediaFile; assert Graphene.Matrix'
+    fi
     "$RYUO_PYTHON" "$RYUO_PROJECT_DIR/ryuo-lcd.py" --sensors
 }
 
@@ -111,13 +130,15 @@ ryuo_check_commands() {
 ryuo_install_files() {
     # Optional staging root is for packaging/tests; no package/service actions.
     local stage=${1:-} name
-    for name in ryuo-lcd.py ryuo-gui.py ryuo-control.py; do
+    local frontend=ryuo-gui.py
+    if [[ $RYUO_UI == gtk4 ]]; then frontend=ryuo-gtk.py; fi
+    for name in ryuo-lcd.py "$frontend" ryuo-control.py; do
         install -D -m 0755 "$RYUO_PROJECT_DIR/$name" "$stage/usr/local/bin/$name"
     done
-    for name in ryuo_config.py ryuo_i18n.py ryuo_hid.py; do
+    for name in ryuo_config.py ryuo_i18n.py ryuo_hid.py ryuo_desktop.py; do
         install -D -m 0644 "$RYUO_PROJECT_DIR/$name" "$stage/usr/local/bin/$name"
     done
-    printf '#!/bin/sh\nexec "%s" /usr/local/bin/ryuo-gui.py "$@"\n' "$RYUO_PYTHON" > "$stage/usr/local/bin/ryuo-control"
+    printf '#!/bin/sh\nexec "%s" /usr/local/bin/%s "$@"\n' "$RYUO_PYTHON" "$frontend" > "$stage/usr/local/bin/ryuo-control"
     printf '#!/bin/sh\nexec "%s" /usr/local/bin/ryuo-lcd.py "$@"\n' "$RYUO_PYTHON" > "$stage/usr/local/bin/ryuo-lcd"
     chmod 0755 "$stage/usr/local/bin/ryuo-control" "$stage/usr/local/bin/ryuo-lcd"
     install -m 0755 "$RYUO_PROJECT_DIR/scripts/uninstall.py" "$stage/usr/local/bin/ryuo-uninstall"
@@ -134,17 +155,19 @@ ryuo_install_files() {
 ryuo_finish() {
     ryuo_check_runtime
     if (( RYUO_DRY_RUN )); then
-        echo "Would copy application, launcher, assets and service using $RYUO_PYTHON."
+        echo "Would copy application, launcher, assets and service using $RYUO_PYTHON ($RYUO_UI)."
         echo 'Would preserve settings/drop-ins and restore SELinux labels if available.'
     else
         ryuo_install_files
         if command -v restorecon >/dev/null 2>&1; then
             restorecon -R /usr/local/share/ryuo-control
-            restorecon /usr/local/bin/ryuo-lcd.py /usr/local/bin/ryuo-gui.py \
+            local frontend=ryuo-gui.py
+            if [[ $RYUO_UI == gtk4 ]]; then frontend=ryuo-gtk.py; fi
+            restorecon /usr/local/bin/ryuo-lcd.py "/usr/local/bin/$frontend" \
                 /usr/local/bin/ryuo-control.py /usr/local/bin/ryuo-control \
                 /usr/local/bin/ryuo-lcd \
                 /usr/local/bin/ryuo-uninstall \
-                /usr/local/bin/ryuo_config.py /usr/local/bin/ryuo_i18n.py /usr/local/bin/ryuo_hid.py \
+                /usr/local/bin/ryuo_config.py /usr/local/bin/ryuo_i18n.py /usr/local/bin/ryuo_hid.py /usr/local/bin/ryuo_desktop.py \
                 /etc/systemd/system/ryuo-lcd.service \
                 /etc/udev/rules.d/70-ryuo-lcd.rules \
                 /usr/local/share/applications/ryuo-control.desktop \

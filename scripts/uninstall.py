@@ -9,7 +9,8 @@ import sys
 
 SERVICE = 'ryuo-lcd.service'
 FILES = (
-    '/usr/local/bin/ryuo-lcd.py', '/usr/local/bin/ryuo-gui.py',
+    '/usr/local/bin/ryuo-lcd.py', '/usr/local/bin/ryuo-gui.py', '/usr/local/bin/ryuo-gtk.py',
+    '/usr/local/bin/ryuo_desktop.py',
     '/usr/local/bin/ryuo-control.py', '/usr/local/bin/ryuo_config.py',
     '/usr/local/bin/ryuo_i18n.py', '/usr/local/bin/ryuo_hid.py',
     '/usr/local/bin/ryuo-lcd', '/usr/local/bin/ryuo-control',
@@ -20,7 +21,7 @@ FILES = (
     '/usr/local/share/icons/hicolor/scalable/apps/ryuo-control.svg',
     '/usr/local/bin/ryuo-uninstall',
 )
-CACHE_STEMS = ('ryuo-lcd', 'ryuo-gui', 'ryuo-control', 'ryuo_config', 'ryuo_i18n', 'ryuo_hid')
+CACHE_STEMS = ('ryuo-lcd', 'ryuo-gui', 'ryuo-gtk', 'ryuo-control', 'ryuo_config', 'ryuo_i18n', 'ryuo_hid', 'ryuo_desktop')
 
 
 class Uninstaller:

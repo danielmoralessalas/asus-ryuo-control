@@ -2,7 +2,6 @@
 """RYUO Control — native Qt6 desktop companion for the Linux LCD service."""
 import importlib.util
 import html
-import hashlib
 import os
 import json
 import re
@@ -11,10 +10,9 @@ import sys
 import tempfile
 import uuid
 from collections import deque
-from datetime import datetime
 from pathlib import Path
 
-from PySide6.QtCore import QMimeData, QPointF, QProcess, QRectF, QSignalBlocker, QStandardPaths, Qt, QThread, Signal, QTimer, QUrl
+from PySide6.QtCore import QMimeData, QPointF, QProcess, QRectF, QSignalBlocker, Qt, QThread, Signal, QTimer, QUrl
 from PySide6.QtGui import QColor, QDrag, QImage, QPainter, QPen, QPixmap, QPolygonF, QTransform
 from PySide6.QtMultimedia import QMediaPlayer, QVideoSink
 from PySide6.QtWidgets import (
@@ -26,7 +24,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QLibraryInfo, QLocale, QSettings, QTranslator
 from PySide6.QtWidgets import QAbstractButton
 from ryuo_i18n import tr, set_language, retranslate
-from ryuo_hid import connected_devices
+from ryuo_desktop import detected_device, preview_cache_path, sensor_value
 
 from ryuo_config import CONFIG_PATH, PRESETS, SENSORS, SLOT_COUNT, load_config, validate_config, valid_media_name, custom_video_path
 
@@ -102,20 +100,6 @@ def retranslate_widgets(root):
             for index in range(widget.count()):
                 item = widget.item(index)
                 item.setText(retranslate(item.text()))
-
-
-def detected_device():
-    devices = connected_devices()
-    return (devices[0]['product'], devices[0]['serial']) if devices else None
-
-
-def preview_cache_path(serial, name, root=None):
-    if not valid_media_name(name) or not serial:
-        raise ValueError(tr('Se requiere un video y la serie del AIO para la caché.'))
-    base = (Path(root) if root is not None else
-            Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.GenericCacheLocation)) / 'ryuo-control' / 'videos')
-    device = hashlib.sha256(serial.encode()).hexdigest()[:16]
-    return base / device / name
 
 
 class Monitor(QThread):
@@ -927,28 +911,7 @@ class Window(QMainWindow):
         self.update_slot_previews()
 
     def preview_value(self, sensor):
-        if not sensor:
-            return '＋'
-        if sensor == 'Date&Time':
-            return datetime.now().strftime('%H:%M')
-        if not self.last_sensors:
-            return '—'
-        if sensor == 'CPU Temperature' and self.sensor_sources.get('cpu') == 'unavailable':
-            return '—'
-        gpu_field = {'GPU Temperature': 'temperature', 'GPU Load': 'usage',
-                     'GPU Speed': 'speed', 'GPU Power': 'power'}.get(sensor)
-        if gpu_field and (self.sensor_sources.get('gpu') == 'unavailable'
-                          or gpu_field in self.sensor_sources.get('gpu_unavailable', [])):
-            return '—'
-        cpu, gpu = self.last_sensors['cpu'], self.last_sensors['gpu']
-        values = {
-            'CPU Temperature': f"{float(cpu['temperature']):.1f} °C",
-            'GPU Temperature': f"{float(gpu['temperature']):.1f} °C",
-            'CPU Speed Average': f"{cpu['speedAverage']} MHz",
-            'CPU Load': f"{cpu['usage']} %", 'GPU Load': f"{gpu['usage']} %",
-            'GPU Speed': f"{gpu['speed']} MHz", 'GPU Power': f"{gpu['power']} W",
-        }
-        return values.get(sensor, '—')
+        return sensor_value(sensor, self.last_sensors, self.sensor_sources)
 
     def update_slot_previews(self):
         for index, preview in enumerate(self.slot_previews):
