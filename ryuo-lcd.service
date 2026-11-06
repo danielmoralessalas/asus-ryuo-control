@@ -1,13 +1,11 @@
 [Unit]
 Description=ASUS ROG RYUO IV LCD sensor display
-After=multi-user.target
-Wants=multi-user.target
+After=systemd-udev-trigger.service
 
 [Service]
 Type=simple
 ExecStartPre=/bin/sleep 10
 ExecStart=/usr/bin/python3 -u /usr/local/bin/ryuo-lcd.py
-ExecStop=/usr/bin/python3 -u /usr/local/bin/ryuo-lcd.py --stop
 Restart=on-failure
 RestartSec=5
 StandardOutput=journal

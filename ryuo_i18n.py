@@ -1,0 +1,157 @@
+"""English/Spanish UI catalog, independent of LCD protocol identifiers."""
+
+EN = {
+    'AMD: promedio CCD · Intel: paquete': 'AMD: CCD average · Intel: package',
+    'AMD: Tctl · Intel: paquete': 'AMD: Tctl · Intel: package',
+    'Frecuencia GPU': 'GPU frequency', 'Potencia GPU': 'GPU power',
+    'Primero ejecuta desde la carpeta del proyecto: sudo bash ./install.sh': 'First run from the project directory: sudo bash ./install.sh',
+    'Idioma': 'Language',
+    'Idioma actualizado.': 'Language updated.',
+    'No se pudo guardar el idioma.': 'Could not save the language preference.',
+    'Resumen': 'Overview', 'Pantalla': 'Display', 'Servicio': 'Service',
+    'ROG RYUO IV\nControl independiente': 'ROG RYUO IV\nIndependent control',
+    'Tu equipo, en vivo': 'Your system, live',
+    'Sensores locales · actualización cada 2 segundos': 'Local sensors · updated every 2 seconds',
+    'CPU · temperatura': 'CPU · temperature', 'GPU · temperatura': 'GPU · temperature',
+    'Memoria · uso': 'Memory · usage', 'Esperando sensores…': 'Waiting for sensors…',
+    'Uso · últimas 60 muestras · escala 0–100 %': 'Usage · last 60 samples · 0–100% scale',
+    'CPU: turquesa     GPU: naranja': 'CPU: turquoise     GPU: orange',
+    'Conexión': 'Connection', 'Buscando RYUO IV…': 'Looking for RYUO IV…',
+    'Consultando servicio…': 'Checking service…',
+    'La pantalla sigue funcionando al cerrar esta ventana si el servicio está activo.': 'The display keeps working after you close this window if the service is active.',
+    'Diseña tu pantalla': 'Design your display',
+    'Videos preinstalados y datos que se muestran en el LCD.': 'Built-in videos and data shown on the LCD.',
+    'Videos del dispositivo': 'Device videos',
+    'Subir y mostrar video MP4…': 'Upload and show MP4 video…',
+    'Leer videos del LCD': 'Refresh LCD videos',
+    'Descargar presets…': 'Download presets…',
+    'Descargar videos propios…': 'Download custom videos…',
+    'En secuencia': 'Sequential', 'Aleatorio': 'Random', 'Individual': 'Single',
+    'Máximo 5 videos seleccionados. Para archivos propios: MP4 H.264 hasta 1920×1080 o HEVC hvc1 a 2240×1080. Se copian sin convertir.': 'Select up to 5 videos. Custom files: H.264 MP4 up to 1920×1080, or HEVC hvc1 at 2240×1080. Files are copied without conversion.',
+    'ROG RYUO IV SLC 360 ARGB · editor de pantalla': 'ROG RYUO IV SLC 360 ARGB · display editor',
+    'Arrastra un sensor sobre otro para intercambiarlos. Haz clic en uno para cambiar qué muestra.': 'Drag a sensor onto another to swap them. Click a sensor to change what it shows.',
+    'Video para vista previa local': 'Video for local preview',
+    'Reproducir vista previa': 'Play preview', 'Actualizar copia': 'Refresh cached copy',
+    'Vista previa local del video elegido · sin sincronización con el AIO.': 'Local preview of the selected video · not synchronized with the AIO.',
+    'Posición del sensor a editar': 'Sensor slot to edit',
+    'Vacía · ocultar': 'Empty · hide', 'Vacía': 'Empty',
+    'Sensor de la posición seleccionada': 'Sensor in the selected slot',
+    'Ocultar todos': 'Hide all',
+    'Imagen de referencia ASUS; perspectiva aproximada. Los cambios se envían al pulsar «Aplicar al LCD».': 'ASUS reference image; approximate perspective. Changes are sent when you click “Apply to LCD”.',
+    'Lecturas y apariencia': 'Readings and appearance',
+    'Promedio de CCD (Tccd1, Tccd2…)': 'CCD average (Tccd1, Tccd2…)',
+    'Tctl (temperatura de control)': 'Tctl (control temperature)',
+    'Temperatura CPU': 'CPU temperature', 'Temperatura GPU': 'GPU temperature',
+    'Frecuencia CPU': 'CPU frequency', 'Uso CPU': 'CPU usage', 'Uso GPU': 'GPU usage',
+    'Fecha y hora': 'Date and time', 'Colores': 'Colors',
+    'Brillo por ADB': 'Brightness via ADB', 'Nivel': 'Level',
+    'Vacío: usa la variable del servicio, si existe': 'Empty: use the service variable, if set',
+    'Detectar serie USB': 'Detect USB serial', 'Serie del LCD': 'LCD serial',
+    'Requiere ADB autorizado. El resultado se comprueba en el registro del servicio.': 'Requires authorized ADB. Check the result in the service log.',
+    'Recargar guardado': 'Reload saved settings', 'Aplicar al LCD': 'Apply to LCD',
+    'Servicio y diagnóstico': 'Service and diagnostics',
+    'El servicio mantiene el LCD actualizado en segundo plano.': 'The service keeps the LCD updated in the background.',
+    'Iniciar': 'Start', 'Detener': 'Stop', 'Reiniciar': 'Restart',
+    'Activar al arrancar': 'Enable at boot', 'Desactivar al arrancar': 'Disable at boot',
+    'Leer registro': 'Read log',
+    'Pulsa «Leer registro» para consultar los últimos eventos.\nLas acciones administrativas abren la autenticación del sistema.': 'Click “Read log” to view recent events.\nAdministrative actions open system authentication.',
+    'Control del LCD: videos, sensores y brillo. Las curvas de bomba y ventiladores se configuran por separado en BIOS. No se actualiza firmware.': 'LCD control: videos, sensors and brightness. Configure pump and fan curves separately in BIOS. Firmware updates are not supported.',
+    'Listo. Los cambios se envían al pulsar «Aplicar al LCD».': 'Ready. Changes are sent when you click “Apply to LCD”.',
+    'Hay cambios sin aplicar.': 'There are unapplied changes.',
+    ' Hay cambios sin aplicar.': ' There are unapplied changes.',
+    'Borrar…': 'Delete…', 'Borrar video': 'Delete video',
+    'Borrar video del AIO': 'Delete video from AIO',
+    'Esta acción no se puede deshacer. Los presets no se borrarán.': 'This cannot be undone. Presets will not be deleted.',
+    'Primero lee la lista de videos del LCD.': 'Refresh the LCD video list first.',
+    'Este video está en la lista guardada. Desmárcalo, selecciona otro video y pulsa «Aplicar al LCD» antes de borrarlo.': 'This video is in the saved playlist. Uncheck it, select another video and click “Apply to LCD” before deleting it.',
+    'Solo se pueden borrar videos propios; los presets están protegidos.': 'Only custom videos can be deleted; presets are protected.',
+    'Detecta o escribe la serie del LCD en «Brillo por ADB».': 'Detect or enter the LCD serial under “Brightness via ADB”.',
+    'Seleccionar video para el LCD': 'Select video for LCD', 'Videos MP4 (*.mp4)': 'MP4 videos (*.mp4)',
+    'Carpeta donde guardar los videos del LCD': 'Folder for downloaded LCD videos',
+    'Categoría de videos inválida.': 'Invalid video category.',
+    'El destino debe ser una carpeta.': 'The destination must be a folder.',
+    'Descargar videos': 'Download videos', 'Selecciona un archivo MP4 no vacío.': 'Select a non-empty MP4 file.',
+    'Videos del LCD': 'LCD videos', 'Instalación requerida': 'Installation required',
+    'Dispositivo': 'Device', 'No se encontró un RYUO IV conectado.': 'No connected RYUO IV was found.',
+    'Configuración': 'Settings', 'Revisa la selección': 'Check your selection',
+    'Valores iniciales. Aplica los cambios para guardarlos.': 'Default settings. Apply changes to save them.',
+    'Se requiere un video y la serie del AIO para la caché.': 'A video and the AIO serial are required for the cache.',
+    'Pulsa reproducir para ver el video seleccionado con los sensores. La copia se descarga solo si hace falta.': 'Click play to preview the selected video with sensors. A copy is downloaded only when needed.',
+    'Pausar vista previa': 'Pause preview', 'Reanudar vista previa': 'Resume preview',
+    'Selecciona al menos un video de la lista para previsualizarlo.': 'Select at least one video from the list to preview it.',
+    'Video pausado. Los sensores siguen actualizándose.': 'Video paused. Sensors continue updating.',
+    'Vista previa local reanudada. Los cambios siguen sin enviarse al LCD.': 'Local preview resumed. Changes have not been sent to the LCD.',
+    'ADB no pudo descargar una copia completa. Revisa el registro y la conexión.': 'ADB could not download a complete copy. Check the log and connection.',
+    'Copia descargada en caché. Pulsa reproducir para el video que tienes seleccionado.': 'Copy cached. Click play to preview your current selection.',
+    'Procesando archivos del LCD…': 'Processing LCD files…',
+    'Esperando autenticación / ejecutando acción…': 'Waiting for authentication / running action…',
+    'No se pudo iniciar el comando. Comprueba que android-tools y polkit están instalados.': 'Could not start the command. Check that android-tools and polkit are installed.',
+    'Operación de vista previa terminada.': 'Preview operation finished.',
+    'Video borrado y lista actualizada.': 'Video deleted and list refreshed.',
+    'Lista de videos actualizada.': 'Video list refreshed.',
+    'Video subido, seleccionado y aplicado al LCD.': 'Video uploaded, selected and applied to the LCD.',
+    'Acción completada. Consulta el registro para verificar el LCD.': 'Action completed. Check the log to verify the LCD.',
+    'No se pudo subir el video. Se restauró la selección anterior. Revisa el registro.': 'Could not upload the video. The previous selection was restored. Check the log.',
+    'El video se subió y quedó seleccionado, pero no se pudo aplicar. Reintenta «Aplicar al LCD» sin volver a subirlo.': 'The video was uploaded and selected, but could not be applied. Retry “Apply to LCD” without uploading again.',
+    'El video se borró, pero no se pudo recargar la lista. Reintenta «Leer videos del LCD».': 'The video was deleted, but the list could not be refreshed. Retry “Refresh LCD videos”.',
+    'Acción cancelada o fallida. Revisa el registro en «Servicio».': 'Action cancelled or failed. Check the log under “Service”.',
+    'RYUO IV no detectado por USB': 'RYUO IV not detected via USB',
+    'desconocido': 'unknown', 'no instalado': 'not installed',
+    'Acción en curso': 'Action in progress', 'Espera a que finalice la operación.': 'Wait for the operation to finish.',
+    'Cambios sin aplicar': 'Unapplied changes', '¿Cerrar sin aplicar los cambios?': 'Close without applying changes?',
+    'No se puede consultar systemd': 'Cannot query systemd',
+    'Haz clic para elegir el sensor. Arrastra a otro sensor para intercambiarlos. Enter también selecciona esta posición.': 'Click to choose the sensor. Drag onto another sensor to swap them. Enter also selects this slot.',
+    'Posición {0} del LCD': 'LCD slot {0}',
+    'Posición {0:02}': 'Slot {0:02}',
+    'Posición {0}: {1}': 'Slot {0}: {1}',
+    'Borrar del AIO el video {0}': 'Delete video {0} from AIO',
+    'No se puede reproducir localmente: {0}': 'Cannot play locally: {0}',
+    'Vista previa local · {0} · en bucle y sin audio. No cambia el LCD.': 'Local preview · {0} · looping, muted. Does not change the LCD.',
+    'Descargando una copia de {0} para vista previa…': 'Downloading a copy of {0} for preview…',
+    'No se pudo preparar la vista previa: {0}': 'Could not prepare preview: {0}',
+    'Vista previa no disponible: {0}': 'Preview unavailable: {0}',
+    '¿Borrar definitivamente este video del AIO?\n\n{0}': 'Permanently delete this video from the AIO?\n\n{0}',
+    'Títulos {0}': 'Titles {0}', 'Datos {0}': 'Values {0}',
+    'Configuración cargada de {0}': 'Settings loaded from {0}',
+    'Descarga completada en: {0}': 'Download completed in: {0}',
+    'Descarga fallida. Puede haber archivos parciales en {0}. Revisa el registro.': 'Download failed. Partial files may remain in {0}. Check the log.',
+    'USB conectado · {0}\nSerie: {1}': 'USB connected · {0}\nSerial: {1}',
+    'Servicio: {0} / {1}\nInicio al arrancar: {2}': 'Service: {0} / {1}\nStart at boot: {2}',
+    'Diagnóstico: {0}': 'Diagnostics: {0}',
+    'La configuración debe ser un objeto JSON.': 'Settings must be a JSON object.',
+    'Campos desconocidos: {0}': 'Unknown fields: {0}',
+    'Selección inválida: media': 'Invalid video selection',
+    'La disposición debe contener de 1 a 6 sensores o posiciones vacías.': 'The layout must contain 1 to 6 sensors or empty slots.',
+    'Modo de reproducción inválido.': 'Invalid playback mode.',
+    'El brillo debe ser un entero entre 0 y 100.': 'Brightness must be an integer from 0 to 100.',
+    'Modo de temperatura CPU inválido.': 'Invalid CPU temperature mode.',
+    'Número de serie ADB inválido.': 'Invalid ADB serial number.',
+    'Color inválido: {0}': 'Invalid color: {0}',
+    'La lista de videos es demasiado larga para el LCD. Selecciona menos videos.': 'The video list is too long for the LCD. Select fewer videos.',
+}
+
+_language = 'en'
+_rendered = {}
+
+
+def set_language(language):
+    global _language
+    _language = language if language in ('en', 'es') else 'en'
+
+
+def tr(source, *args):
+    """Translate a full message; format values without translating identifiers."""
+    template = EN.get(source, source) if _language == 'en' else source
+    result = template.format(*args) if args else template
+    if source in EN:
+        _rendered[result] = (source, args)
+    return result
+
+
+def retranslate(text):
+    """Recover the source message of existing widget text when switching live."""
+    message = _rendered.get(text)
+    if message is not None:
+        source, args = message
+        return tr(source, *(retranslate(arg) if isinstance(arg, str) else arg for arg in args))
+    return tr(text) if text in EN else text

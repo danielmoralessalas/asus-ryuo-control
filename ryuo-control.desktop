@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=RYUO Control
+Comment=Control videos, sensors and brightness of the ROG RYUO IV LCD
+Comment[es]=Controla videos, sensores y brillo del LCD ROG RYUO IV
+Exec=/usr/local/bin/ryuo-control
+Icon=ryuo-control
+Terminal=false
+Categories=Settings;HardwareSettings;
+StartupNotify=true
