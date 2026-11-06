@@ -674,6 +674,12 @@ MIT
 
 ## Credits
 
+This project is a fork of
+[asus-ryuo-iv-linux](https://github.com/dragocz95/asus-ryuo-iv-linux),
+started by [dragocz95](https://github.com/dragocz95). Its original Linux driver
+and USB HID protocol reverse-engineering work provide the foundation for
+RYUO Control. Thank you for sharing the original project.
+
 Reverse-engineered with the help of Claude (Anthropic).
 
 RYUO Control development and enhancements assisted by Codex (OpenAI),

@@ -651,6 +651,12 @@ MIT
 
 ## Créditos
 
+Este proyecto es un fork de
+[asus-ryuo-iv-linux](https://github.com/dragocz95/asus-ryuo-iv-linux),
+iniciado por [dragocz95](https://github.com/dragocz95). Su controlador original
+para Linux y el trabajo de ingeniería inversa del protocolo USB HID son la base
+de RYUO Control. Gracias por compartir el proyecto original.
+
 Ingeniería inversa realizada con ayuda de Claude (Anthropic).
 
 Desarrollo y ampliación de RYUO Control con asistencia de Codex (OpenAI),
